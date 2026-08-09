@@ -1,134 +1,125 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 public class InteractionManager : MonoBehaviour
 {
-    [Header("交互提示UI")]
-    public GameObject interactTipUI;
-    public RectTransform tipRect;
-    public Text tipText; // 新增：文字组件
-    public Vector2 uiOffset = new Vector2(30, 30);
+    public static InteractionManager Instance;
 
-    [Header("玩家设置")]
-    public Transform playerTrans;
-    public float rayStartHeight = 1f;
+    [Header("检测范围")]
+    public float interactDistance = 1f;
 
-    [Header("射线遮挡")]
-    public LayerMask obstacleLayer;
+    [Header("检测层")]
+    public LayerMask interactLayer;
 
-    private List<BaseInteractable> inRangeObjects = new List<BaseInteractable>();
-    public BaseInteractable CurrentInteractable { get; private set; }
-
-    private Camera mainCam;
+    //当前交互目标
+    private Interactable currentInteractable;
 
     void Awake()
     {
-        mainCam = Camera.main;
-        interactTipUI.SetActive(false);
+        Instance = this;
     }
 
     void Update()
     {
-        RefreshClosestInteractable();
+        DetectInteractable();
 
-        if (CurrentInteractable != null)
+        //交互按键
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            // 更新UI文字（箱子显示【F开启】商人【F交谈】）
-            tipText.text = CurrentInteractable.interactTipText;
 
-            Vector3 worldPos = CurrentInteractable.transform.position;
-            Vector2 screenPos = mainCam.WorldToScreenPoint(worldPos);
-            tipRect.anchoredPosition = screenPos + uiOffset;
-            interactTipUI.SetActive(true);
-
-            if (Input.GetKeyDown(KeyCode.F))
+            if (currentInteractable != null)
             {
-                CurrentInteractable.DoInteract();
+                currentInteractable.Interact();
             }
+
         }
-        else
-        {
-            interactTipUI.SetActive(false);
-        }
+
     }
-
-    void RefreshClosestInteractable()
+    /// <summary>
+    /// 检测附近可交互对象
+    /// </summary>
+    void DetectInteractable()
     {
-        inRangeObjects.RemoveAll(item => item == null);
+        Collider[] colliders =Physics.OverlapSphere(transform.position,interactDistance,interactLayer);
 
-        if (inRangeObjects.Count == 0)
+        Interactable nearest = null;
+
+        float minDistance = Mathf.Infinity;
+
+        foreach (Collider col in colliders)
         {
-            CurrentInteractable = null;
-            return;
-        }
+            Interactable interactable = col.GetComponent<Interactable>();
 
-        BaseInteractable closestObj = null;
-        float minDistance = float.MaxValue;
-
-        foreach (var obj in inRangeObjects)
-        {
-            // 可选：如果交互已经完成，不进行选中
-            // if(obj.isInteracted) continue;
-
-            Vector3 rayOrigin = playerTrans.position + Vector3.up * rayStartHeight;
-            Vector3 direction = obj.transform.position - rayOrigin;
-            float distance = direction.magnitude;
-
-            bool isBlocked = Physics.Raycast(
-                rayOrigin,
-                direction.normalized,
-                distance,
-                obstacleLayer
-            );
-
-            if (isBlocked)
+            if (interactable == null)
                 continue;
+
+            float distance =Vector3.Distance(transform.position,col.transform.position );
 
             if (distance < minDistance)
             {
                 minDistance = distance;
-                closestObj = obj;
+                nearest = interactable;
             }
         }
-
-        CurrentInteractable = closestObj;
+        ChangeTarget(nearest);
     }
-
-    public void AddInteractable(BaseInteractable obj)
+    /// <summary>
+    /// 切换当前交互对象
+    /// </summary>
+    void ChangeTarget(Interactable newTarget)
     {
-        if (!inRangeObjects.Contains(obj))
+        //目标没有变化
+        if (currentInteractable == newTarget)
+            return;
+
+        //离开旧目标
+        if (currentInteractable != null)
         {
-            inRangeObjects.Add(obj);
+            currentInteractable.OnLoseFocus();
+
+            Debug.Log("已离开交互目标" );
+
+            HideInteractUI();
+        }
+
+        //切换目标
+        currentInteractable = newTarget;
+
+        //进入新目标
+        if (currentInteractable != null)
+        {
+            currentInteractable.OnFocus();
+
+            Debug.Log("进入交互范围: " + currentInteractable.GetInteractText());
+
+            ShowInteractUI(currentInteractable.GetInteractText());
         }
     }
 
-    public void RemoveInteractable(BaseInteractable obj)
+    /// <summary>
+    /// 显示交互提示
+    /// </summary>
+    void ShowInteractUI(string text)
     {
-        if (inRangeObjects.Contains(obj))
-        {
-            inRangeObjects.Remove(obj);
-        }
+
+        Debug.Log("[E] " + text);
+
+        //这里以后接UI
+        //例如：
+        //InteractionUI.Show(text)
     }
 
-    // UI按钮点击交互
-    public void OnClickInteractButton()
+    /// <summary>
+    /// 隐藏提示
+    /// </summary>
+    void HideInteractUI()
     {
-        if (CurrentInteractable != null)
-        {
-            CurrentInteractable.DoInteract();
-        }
+        Debug.Log("隐藏交互提示" );
     }
+
 
     private void OnDrawGizmosSelected()
     {
-        if (playerTrans == null) return;
-        Vector3 origin = playerTrans.position + Vector3.up * rayStartHeight;
-        foreach (var obj in inRangeObjects)
-        {
-            if (obj == null) continue;
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(origin, obj.transform.position);
-        }
+        Gizmos.DrawWireSphere(transform.position,interactDistance);
     }
 }

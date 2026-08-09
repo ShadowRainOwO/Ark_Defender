@@ -4,63 +4,158 @@ public class CameraFollow : MonoBehaviour
 {
     [Header("跟随目标(玩家)")]
     public Transform target;
-    [Header("基础偏移")]
-    public Vector3 offset = new Vector3(0, 4, -6);
+
+
+    [Header("摄像机距离")]
+    public Vector3 offset = new Vector3(0, 5, -8);
+
+
     [Header("位置平滑速度")]
-    public float moveSmoothSpeed = 5f;
-    [Header("相机旋转设置")]
+    public float moveSmoothSpeed = 8f;
+
+
+    [Header("旋转设置")]
     public float rotateAngle = 45f;
     public float rotateSmoothSpeed = 8f;
-    [Header("固定俯视角度")]
-    public float pitchAngle = 22f;
+
+
+    [Header("看向玩家高度")]
+    public float lookHeight = 1.5f;
+
+
 
     private float currentYaw;
-    private Vector3 currentOffset;
+    private float targetYaw;
+
     private GameInput gameInput;
+
+
 
     void Awake()
     {
         gameInput = new GameInput();
     }
 
+
+
     void Start()
     {
         currentYaw = transform.eulerAngles.y;
-        currentOffset = offset;
+        targetYaw = currentYaw;
     }
+
+
 
     void OnEnable()
     {
         gameInput.Player.Enable();
-        //按键按下事件
-        gameInput.Player.RotateCamLeft.performed += _ => currentYaw -= rotateAngle;
-        gameInput.Player.RotateCamRight.performed += _ => currentYaw += rotateAngle;
+
+
+        // Q 左转45°
+        gameInput.Player.RotateCamLeft.performed += _
+        =>
+        {
+            targetYaw -= rotateAngle;
+        };
+
+
+        // E 右转45°
+        gameInput.Player.RotateCamRight.performed += _
+        =>
+        {
+            targetYaw += rotateAngle;
+        };
     }
+
+
 
     void OnDisable()
     {
         gameInput.Player.Disable();
     }
 
+
+
+
     void LateUpdate()
     {
-        currentYaw %= 360f;
-        if (currentYaw < 0) currentYaw += 360f;
+        if (target == null)
+            return;
 
-        Quaternion rot = Quaternion.Euler(0, currentYaw, 0);
-        Vector3 targetOffset = rot * offset;
-        currentOffset = Vector3.Lerp(currentOffset, targetOffset, rotateSmoothSpeed * Time.deltaTime);
 
-        //平滑相机位置
-        Vector3 desiredCameraPos = target.position + currentOffset;
-        transform.position = Vector3.Lerp(transform.position, desiredCameraPos, moveSmoothSpeed * Time.deltaTime);
 
-        //改良LookAt：固定俯仰，消除回弹摆动
-        Vector3 dirToPlayer = target.position - transform.position;
-        dirToPlayer.y = 0;
-        Quaternion targetRot = Quaternion.LookRotation(dirToPlayer);
-        targetRot = Quaternion.Euler(pitchAngle, targetRot.eulerAngles.y, 0);
+        // =========================
+        // 1. E/Q控制水平旋转
+        // =========================
 
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, rotateSmoothSpeed * Time.deltaTime);
+        currentYaw = Mathf.LerpAngle(
+            currentYaw,
+            targetYaw,
+            rotateSmoothSpeed * Time.deltaTime
+        );
+
+
+
+        Quaternion yawRotation =
+            Quaternion.Euler(
+                0,
+                currentYaw,
+                0
+            );
+
+
+
+        // =========================
+        // 2. 计算摄像机位置
+        // =========================
+
+        Vector3 desiredPosition =
+            target.position + yawRotation * offset;
+
+
+
+        transform.position =
+            Vector3.Lerp(
+                transform.position,
+                desiredPosition,
+                moveSmoothSpeed * Time.deltaTime
+            );
+
+
+
+        // =========================
+        // 3. 看向玩家
+        // 但是只改变上下角度
+        // =========================
+
+
+        Vector3 lookTarget =
+            target.position +
+            Vector3.up * lookHeight;
+
+
+
+        Vector3 direction =
+            lookTarget - transform.position;
+
+
+
+        Quaternion lookRotation =
+            Quaternion.LookRotation(direction);
+
+
+
+        float pitch =
+            lookRotation.eulerAngles.x;
+
+
+
+        // 保留E/Q控制的水平角
+        transform.rotation =
+            Quaternion.Euler(
+                pitch,
+                currentYaw,
+                0
+            );
     }
 }
