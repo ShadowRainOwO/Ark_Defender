@@ -1,2 +1,0 @@
-# Ark_Defender
-UnityProjectFile
