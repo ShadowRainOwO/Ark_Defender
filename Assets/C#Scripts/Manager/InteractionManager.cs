@@ -12,7 +12,7 @@ public class InteractionManager : MonoBehaviour
     public LayerMask interactLayer;
 
     //当前交互目标
-    private Interactable currentInteractable;
+    private IInteractable currentInteractable;
 
     void Awake()
     {
@@ -42,13 +42,13 @@ public class InteractionManager : MonoBehaviour
     {
         Collider[] colliders =Physics.OverlapSphere(transform.position,interactDistance,interactLayer);
 
-        Interactable nearest = null;
+        IInteractable nearest = null;
 
         float minDistance = Mathf.Infinity;
 
         foreach (Collider col in colliders)
         {
-            Interactable interactable = col.GetComponent<Interactable>();
+            IInteractable interactable = col.GetComponent<IInteractable>();
 
             if (interactable == null)
                 continue;
@@ -66,7 +66,7 @@ public class InteractionManager : MonoBehaviour
     /// <summary>
     /// 切换当前交互对象
     /// </summary>
-    void ChangeTarget(Interactable newTarget)
+    void ChangeTarget(IInteractable newTarget)
     {
         //目标没有变化
         if (currentInteractable == newTarget)

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class ContainerInteract : MonoBehaviour, Interactable
+public class ContainerInteract : MonoBehaviour, IInteractable
 {
 
 
