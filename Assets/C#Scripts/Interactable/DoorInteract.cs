@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class DoorInteract : MonoBehaviour, Interactable
+public class DoorInteract : MonoBehaviour, IInteractable
 {
 
 

@@ -1,54 +1,65 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 public class InteractionManager : MonoBehaviour
 {
     public static InteractionManager Instance;
 
-    [Header("¼ì²â·¶Î§")]
+    [Header("æ£€æµ‹èŒƒå›´")]
     public float interactDistance = 1f;
 
-    [Header("¼ì²â²ã")]
+    [Header("æ£€æµ‹å±‚")]
     public LayerMask interactLayer;
 
-    //µ±Ç°½»»¥Ä¿±ê
-    private Interactable currentInteractable;
+    //å½“å‰äº¤äº’ç›®æ ‡
+    private IInteractable currentInteractable;
+    private GameInput gameInput;
 
     void Awake()
     {
         Instance = this;
+        gameInput = new GameInput();
+    }
+
+    void OnEnable()
+    {
+        gameInput.Player.Interact.performed += OnInteractPerformed;
+        gameInput.Player.Enable();
+    }
+
+    void OnDisable()
+    {
+        gameInput.Player.Disable();
+        gameInput.Player.Interact.performed -= OnInteractPerformed;
     }
 
     void Update()
     {
         DetectInteractable();
+    }
 
-        //½»»¥°´¼ü
-        if (Input.GetKeyDown(KeyCode.F))
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        if (currentInteractable != null)
         {
-
-            if (currentInteractable != null)
-            {
-                currentInteractable.Interact();
-            }
-
+            currentInteractable.Interact();
         }
-
     }
     /// <summary>
-    /// ¼ì²â¸½½ü¿É½»»¥¶ÔÏó
+    /// æ£€æµ‹é™„è¿‘å¯äº¤äº’å¯¹è±¡
     /// </summary>
     void DetectInteractable()
     {
         Collider[] colliders =Physics.OverlapSphere(transform.position,interactDistance,interactLayer);
 
-        Interactable nearest = null;
+        IInteractable nearest = null;
 
         float minDistance = Mathf.Infinity;
 
         foreach (Collider col in colliders)
         {
-            Interactable interactable = col.GetComponent<Interactable>();
+            IInteractable interactable = col.GetComponent<IInteractable>();
 
             if (interactable == null)
                 continue;
@@ -64,57 +75,57 @@ public class InteractionManager : MonoBehaviour
         ChangeTarget(nearest);
     }
     /// <summary>
-    /// ÇĞ»»µ±Ç°½»»¥¶ÔÏó
+    /// åˆ‡æ¢å½“å‰äº¤äº’å¯¹è±¡
     /// </summary>
-    void ChangeTarget(Interactable newTarget)
+    void ChangeTarget(IInteractable newTarget)
     {
-        //Ä¿±êÃ»ÓĞ±ä»¯
+        //ç›®æ ‡æ²¡æœ‰å˜åŒ–
         if (currentInteractable == newTarget)
             return;
 
-        //Àë¿ª¾ÉÄ¿±ê
+        //ç¦»å¼€æ—§ç›®æ ‡
         if (currentInteractable != null)
         {
             currentInteractable.OnLoseFocus();
 
-            Debug.Log("ÒÑÀë¿ª½»»¥Ä¿±ê" );
+            Debug.Log("å·²ç¦»å¼€äº¤äº’ç›®æ ‡" );
 
             HideInteractUI();
         }
 
-        //ÇĞ»»Ä¿±ê
+        //åˆ‡æ¢ç›®æ ‡
         currentInteractable = newTarget;
 
-        //½øÈëĞÂÄ¿±ê
+        //è¿›å…¥æ–°ç›®æ ‡
         if (currentInteractable != null)
         {
             currentInteractable.OnFocus();
 
-            Debug.Log("½øÈë½»»¥·¶Î§: " + currentInteractable.GetInteractText());
+            Debug.Log("è¿›å…¥äº¤äº’èŒƒå›´: " + currentInteractable.GetInteractText());
 
             ShowInteractUI(currentInteractable.GetInteractText());
         }
     }
 
     /// <summary>
-    /// ÏÔÊ¾½»»¥ÌáÊ¾
+    /// æ˜¾ç¤ºäº¤äº’æç¤º
     /// </summary>
     void ShowInteractUI(string text)
     {
 
-        Debug.Log("[E] " + text);
+        Debug.Log("[F] " + text);
 
-        //ÕâÀïÒÔºó½ÓUI
-        //ÀıÈç£º
+        //è¿™é‡Œä»¥åæ¥UI
+        //ä¾‹å¦‚ï¼š
         //InteractionUI.Show(text)
     }
 
     /// <summary>
-    /// Òş²ØÌáÊ¾
+    /// éšè—æç¤º
     /// </summary>
     void HideInteractUI()
     {
-        Debug.Log("Òş²Ø½»»¥ÌáÊ¾" );
+        Debug.Log("éšè—äº¤äº’æç¤º" );
     }
 
 
