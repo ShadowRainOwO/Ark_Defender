@@ -1,21 +1,22 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraFollow : MonoBehaviour
 {
-    [Header("¸úËæÄ¿±ê(Íæ¼Ò)")]
+    [Header("è·Ÿéšç›®æ ‡(ç©å®¶)")]
     public Transform target;
 
-    [Header("ÉãÏñ»ú¾àÀë")]
+    [Header("æ‘„åƒæœºè·ç¦»")]
     public Vector3 offset = new Vector3(0, 5, -8);
 
-    [Header("Î»ÖÃÆ½»¬ËÙ¶È")]
+    [Header("ä½ç½®å¹³æ»‘é€Ÿåº¦")]
     public float moveSmoothSpeed = 8f;
 
-    [Header("Ğı×ªÉèÖÃ")]
+    [Header("æ—‹è½¬è®¾ç½®")]
     public float rotateAngle = 45f;
     public float rotateSmoothSpeed = 8f;
 
-    [Header("¿´ÏòÍæ¼Ò¸ß¶È")]
+    [Header("çœ‹å‘ç©å®¶é«˜åº¦")]
     public float lookHeight = 1.5f;
 
     private float currentYaw;
@@ -33,26 +34,30 @@ public class CameraFollow : MonoBehaviour
     }
     void OnEnable()
     {
+        // Q å·¦è½¬45Â°
+        gameInput.Player.RotateCamLeft.performed += OnRotateCamLeft;
+
+        // E å³è½¬45Â°
+        gameInput.Player.RotateCamRight.performed += OnRotateCamRight;
+
         gameInput.Player.Enable();
-
-        // Q ×ó×ª45¡ã
-        gameInput.Player.RotateCamLeft.performed += _
-        =>
-        {
-            targetYaw -= rotateAngle;
-        };
-
-        // E ÓÒ×ª45¡ã
-        gameInput.Player.RotateCamRight.performed += _
-        =>
-        {
-            targetYaw += rotateAngle;
-        };
     }
 
     void OnDisable()
     {
         gameInput.Player.Disable();
+        gameInput.Player.RotateCamLeft.performed -= OnRotateCamLeft;
+        gameInput.Player.RotateCamRight.performed -= OnRotateCamRight;
+    }
+
+    private void OnRotateCamLeft(InputAction.CallbackContext context)
+    {
+        targetYaw -= rotateAngle;
+    }
+
+    private void OnRotateCamRight(InputAction.CallbackContext context)
+    {
+        targetYaw += rotateAngle;
     }
 
     void LateUpdate()
@@ -61,7 +66,7 @@ public class CameraFollow : MonoBehaviour
             return;
 
         // =========================
-        // 1. E/Q¿ØÖÆË®Æ½Ğı×ª
+        // 1. E/Qæ§åˆ¶æ°´å¹³æ—‹è½¬
         // =========================
 
         currentYaw = Mathf.LerpAngle(
@@ -78,7 +83,7 @@ public class CameraFollow : MonoBehaviour
             );
 
         // =========================
-        // 2. ¼ÆËãÉãÏñ»úÎ»ÖÃ
+        // 2. è®¡ç®—æ‘„åƒæœºä½ç½®
         // =========================
 
         Vector3 desiredPosition = target.position + yawRotation * offset;
@@ -90,8 +95,8 @@ public class CameraFollow : MonoBehaviour
                 moveSmoothSpeed * Time.deltaTime
             );
         // =========================
-        // 3. ¿´ÏòÍæ¼Ò
-        // µ«ÊÇÖ»¸Ä±äÉÏÏÂ½Ç¶È
+        // 3. çœ‹å‘ç©å®¶
+        // ä½†æ˜¯åªæ”¹å˜ä¸Šä¸‹è§’åº¦
         // =========================
         Vector3 lookTarget = target.position + Vector3.up * lookHeight;
         Vector3 direction = lookTarget - transform.position;
@@ -100,7 +105,7 @@ public class CameraFollow : MonoBehaviour
 
         float pitch = lookRotation.eulerAngles.x;
 
-        // ±£ÁôE/Q¿ØÖÆµÄË®Æ½½Ç
+        // ä¿ç•™E/Qæ§åˆ¶çš„æ°´å¹³è§’
         transform.rotation =
             Quaternion.Euler(
                 pitch,
