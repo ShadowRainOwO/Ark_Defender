@@ -18,6 +18,9 @@ public class ItemData : ScriptableObject
     [SerializeField] private ItemCategory category;
 
     [Header("数值")]
+    [Min(1)]
+    [SerializeField] private int maxStack = 99;
+
     [Min(0f)]
     [SerializeField] private float weight;
 
@@ -33,6 +36,7 @@ public class ItemData : ScriptableObject
 
     public string ItemId => itemId;
     public ItemCategory Category => category;
+    public int MaxStack => Mathf.Max(1, maxStack);
     public float Weight => weight;
     public int BaseMoneyValue => baseMoneyValue;
     public string Description => description;

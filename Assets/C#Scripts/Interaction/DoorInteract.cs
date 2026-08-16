@@ -1,52 +1,25 @@
 using UnityEngine;
 
-
 public class DoorInteract : MonoBehaviour, IInteractable
 {
-
-
-    public bool isOpen;
-
-
+    [SerializeField] private bool isOpen;
 
     public string GetInteractText()
     {
-        return isOpen ?
-        "¹Ø±ÕÃÅ" :
-        "´ò¿ªÃÅ";
+        return isOpen ? "å…³é—­é—¨" : "æ‰“å¼€é—¨";
     }
-
-
 
     public void Interact()
     {
-
         isOpen = !isOpen;
-
-
-        if (isOpen)
-        {
-            Debug.Log("ÃÅ´ò¿ª");
-        }
-        else
-        {
-            Debug.Log("ÃÅ¹Ø±Õ");
-        }
-
+        Debug.Log(isOpen ? "é—¨å·²æ‰“å¼€" : "é—¨å·²å…³é—­", this);
     }
-
-
 
     public void OnFocus()
     {
-
     }
-
-
 
     public void OnLoseFocus()
     {
-
     }
-
 }
