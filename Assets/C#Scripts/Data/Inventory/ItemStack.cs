@@ -1,11 +1,17 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// 一个格子中的运行时物品数据，由“物品配置 + 当前数量”组成。
+/// ItemData 保存静态配置，ItemStack 只保存会在游戏过程中变化的数量。
+/// </summary>
 [Serializable]
 public class ItemStack
 {
+    [Tooltip("该格子中的物品配置。")]
     [SerializeField] private ItemData item;
     [Min(0)]
+    [Tooltip("当前堆叠数量；为 0 时格子会被清空。")]
     [SerializeField] private int amount;
 
     public ItemData Item => item;

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// NPC 的通用交互入口。
+/// 绑定 ShopData 时视为商店 NPC 并打开商店；未绑定时暂时只输出对话日志。
+/// </summary>
 public class NPCInteract : MonoBehaviour, IInteractable
 {
     [SerializeField] private string npcName = "NPC";
@@ -15,6 +19,7 @@ public class NPCInteract : MonoBehaviour, IInteractable
     {
         if (shopData != null)
         {
+            // 将这个 NPC 自己的商店数据传给右侧 ShopPanel。
             InventoryUIManager.Instance?.OpenShop(shopData);
             return;
         }

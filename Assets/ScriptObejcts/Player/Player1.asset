@@ -17,3 +17,4 @@ MonoBehaviour:
   armor: 0
   baseMoveSpeed: 5
   sprintMultiplier: 1.5
+  defaultInventorySlots: 20

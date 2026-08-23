@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 门的最小交互示例，实现 IInteractable 以接入统一检测。
+/// 当前只切换状态并输出日志，尚未连接动画和碰撞体。
+/// </summary>
 public class DoorInteract : MonoBehaviour, IInteractable
 {
     [SerializeField] private bool isOpen;

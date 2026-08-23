@@ -1,40 +1,49 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
+/// <summary>
+/// 玩家交互检测总入口。
+/// 每帧查找范围内最近的 IInteractable，并在玩家按下交互键时调用目标的 Interact。
+/// 它不直接打开背包、商店或门，而是把具体行为交给目标组件。
+/// </summary>
 public class InteractionManager : MonoBehaviour
 {
+    /// <summary>当前场景中的交互管理器实例。</summary>
     public static InteractionManager Instance;
 
     [Header("检测范围")]
+    [Tooltip("以玩家为中心搜索可交互对象的半径。")]
     public float interactDistance = 1f;
 
     [Header("检测层")]
+    [Tooltip("只有位于这些 Layer 的碰撞体才会参与交互检测。")]
     public LayerMask interactLayer;
 
-    //当前交互目标
+    // 当前距离最近、可以响应交互键的目标。
     private IInteractable currentInteractable;
+
+    // 由 Input System 生成的输入封装类。
     private GameInput gameInput;
 
-    void Awake()
+    private void Awake()
     {
         Instance = this;
         gameInput = new GameInput();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         gameInput.Player.Interact.performed += OnInteractPerformed;
         gameInput.Player.Enable();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         gameInput.Player.Disable();
         gameInput.Player.Interact.performed -= OnInteractPerformed;
     }
 
-    void Update()
+    private void Update()
     {
         DetectInteractable();
     }
@@ -49,9 +58,9 @@ public class InteractionManager : MonoBehaviour
     /// <summary>
     /// 检测附近可交互对象
     /// </summary>
-    void DetectInteractable()
+    private void DetectInteractable()
     {
-        Collider[] colliders =Physics.OverlapSphere(transform.position,interactDistance,interactLayer);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, interactDistance, interactLayer);
 
         IInteractable nearest = null;
 
@@ -64,7 +73,7 @@ public class InteractionManager : MonoBehaviour
             if (interactable == null)
                 continue;
 
-            float distance =Vector3.Distance(transform.position,col.transform.position );
+            float distance = Vector3.Distance(transform.position, col.transform.position);
 
             if (distance < minDistance)
             {
@@ -77,26 +86,26 @@ public class InteractionManager : MonoBehaviour
     /// <summary>
     /// 切换当前交互对象
     /// </summary>
-    void ChangeTarget(IInteractable newTarget)
+    private void ChangeTarget(IInteractable newTarget)
     {
-        //目标没有变化
+        // 目标没有变化时无需重复触发进入/离开事件。
         if (currentInteractable == newTarget)
             return;
 
-        //离开旧目标
+        // 离开旧目标。
         if (currentInteractable != null)
         {
             currentInteractable.OnLoseFocus();
 
-            Debug.Log("已离开交互目标" );
+            Debug.Log("已离开交互目标");
 
             HideInteractUI();
         }
 
-        //切换目标
+        // 切换到新目标。
         currentInteractable = newTarget;
 
-        //进入新目标
+        // 进入新目标。
         if (currentInteractable != null)
         {
             currentInteractable.OnFocus();
@@ -110,22 +119,20 @@ public class InteractionManager : MonoBehaviour
     /// <summary>
     /// 显示交互提示
     /// </summary>
-    void ShowInteractUI(string text)
+    private void ShowInteractUI(string text)
     {
 
         Debug.Log("[F] " + text);
 
-        //这里以后接UI
-        //例如：
-        //InteractionUI.Show(text)
+        // TODO：以后在这里接入正式的 InteractionUI.Show(text)。
     }
 
     /// <summary>
     /// 隐藏提示
     /// </summary>
-    void HideInteractUI()
+    private void HideInteractUI()
     {
-        Debug.Log("隐藏交互提示" );
+        Debug.Log("隐藏交互提示");
     }
 
 
