@@ -2,18 +2,18 @@ using UnityEngine;
 
 /// <summary>
 /// 挂在宝箱、尸体等场景容器上的交互入口。
-/// 被交互后将同物体上的 ContainerData 交给 ContainerManager/UIManager 打开。
+/// 被交互后将同物体上的 WorldContainerData 交给 ContainerManager/UIManager 打开。
 /// </summary>
-[RequireComponent(typeof(ContainerData))]
+[RequireComponent(typeof(WorldContainerData))]
 public class ContainerInteract : MonoBehaviour, IInteractable
 {
     [SerializeField] private string containerName = "容器";
-    [SerializeField] private ContainerData containerData;
+    [SerializeField] private WorldContainerData containerData;
 
     private void Reset()
     {
         // 添加组件或点击 Inspector 的 Reset 时自动查找同物体上的数据组件。
-        containerData = GetComponent<ContainerData>();
+        containerData = GetComponent<WorldContainerData>();
     }
 
     public string GetInteractText()
@@ -25,7 +25,7 @@ public class ContainerInteract : MonoBehaviour, IInteractable
     {
         if (containerData == null)
         {
-            Debug.LogWarning("ContainerInteract 没有绑定 ContainerData。", this);
+            Debug.LogWarning("ContainerInteract 没有绑定 WorldContainerData。", this);
             return;
         }
 

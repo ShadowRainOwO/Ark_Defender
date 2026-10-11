@@ -122,7 +122,7 @@ public class InventoryUIManager : MonoBehaviour
         SetMode(InventoryUIMode.Container);
     }
 
-    public void OpenContainer(ContainerData data)
+    public void OpenContainer(WorldContainerData data)
     {
         // ContainerInteract/ContainerManager 会传入当前打开的具体容器。
         GetPanel<ContainerPanel>(containerPanel)?.Bind(data);

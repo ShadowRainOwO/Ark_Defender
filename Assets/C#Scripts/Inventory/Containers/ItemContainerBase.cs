@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 背包、仓库和场景容器共用的数据基类。
+/// 背包、仓库和场景容器共用的抽象基类。
 /// 负责维护固定数量的格子，以及物品的堆叠、添加、移除和变化通知。
 /// 具体数据类型只负责表达业务身份，不重复实现容器算法。
 /// </summary>
-public abstract class ItemContainerData : MonoBehaviour, IItemContainer
+public abstract class ItemContainerBase : MonoBehaviour, IItemContainer
 {
     [Header("容器容量")]
     [Min(1)]

@@ -5,7 +5,7 @@ using UnityEngine;
 /// 最终容量来自 PlayerStats 的“默认格子 + 额外格子”，UI 只读取本类的 SlotCount。
 /// </summary>
 [RequireComponent(typeof(PlayerStats))]
-public class PlayerInventory : ItemContainerData
+public class PlayerInventory : ItemContainerBase
 {
     [Header("人物属性")]
     [Tooltip("提供默认背包格子和额外背包格子。留空时自动查找同物体上的 PlayerStats。")]
