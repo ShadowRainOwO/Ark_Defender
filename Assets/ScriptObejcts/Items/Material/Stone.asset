@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 1
   category: 3
+  maxStack: 99
   weight: 10
   baseMoneyValue: 20
   description: daw
-  icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  icon: {fileID: 21300000, guid: f882b36c978362c4c89f333a8bcf6728, type: 3}

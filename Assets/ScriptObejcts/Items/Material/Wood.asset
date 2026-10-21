@@ -9,12 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3344e1232c8eb37439b7c5de06c6183b, type: 3}
-  m_Name: Player1
+  m_Script: {fileID: 11500000, guid: 03c9f5de1b5a1664a8b1c8ebc8a445ee, type: 3}
+  m_Name: Wood
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  maxStamina: 100
-  armor: 0
-  baseMoveSpeed: 5
-  sprintMultiplier: 1.5
-  defaultInventorySlots: 20
+  itemId: 2
+  category: 3
+  maxStack: 99
+  weight: 1
+  baseMoneyValue: 5
+  description: dadwa
+  icon: {fileID: 21300000, guid: d65f4175e72197249b19d99c88604898, type: 3}
